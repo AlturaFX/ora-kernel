@@ -1,6 +1,6 @@
 # ORA Kernel
 
-A self-expanding agentic orchestration system for Claude Code. The Kernel uses Opus as the orchestrator — reasoning about priorities, delegating to specialized nodes (subagents), and enforcing a 9-axiom Constitution through programmatic hooks.
+A self-expanding agentic orchestration system for Claude Code. Turn Claude into a proactive business partner that dispatches specialized agents, verifies every work product, learns from its own performance, and works on your project while you're away — all governed by a 9-axiom Constitution enforced through programmatic hooks.
 
 ## Why ORA?
 
@@ -29,11 +29,25 @@ This is **not a chat interface** — it's a workflow orchestration engine with c
 
 ## What It Does
 
-- **Orchestrates complex tasks** by decomposing them into subtasks, dispatching specialized subagents, and verifying results
-- **Enforces safety** via hooks that block dangerous commands, prevent infinite loops, protect core files, and throttle polling
-- **Self-improves** by analyzing task metrics and proposing prompt/parameter improvements after every N completed tasks
-- **Persists state** in PostgreSQL (task lifecycle, activity log, metrics) and OpenTelemetry (token usage, costs)
-- **Listens for events** via an inotifywait-based inbox pattern that keeps the Kernel alive between interactions
+**Orchestration**
+- Decomposes complex tasks into subtasks, dispatches specialized subagents, and verifies every result through a separate verifier
+- Tracks the full task lifecycle (NEW → INCOMPLETE → UNVERIFIED → COMPLETE) in PostgreSQL
+
+**Safety & Enforcement**
+- Hooks block dangerous commands, prevent infinite retry loops, protect core files, and throttle polling
+- 9 immutable axioms enforced programmatically — the model can't bypass them
+
+**Proactive Intelligence**
+- Morning briefings with priority suggestions based on project state
+- Anomaly detection that alerts on stuck tasks, budget exhaustion, and failure spikes
+- Context-aware follow-up suggestions that learn from your feedback
+- Autonomous research on low-risk tasks during off-hours
+
+**Learning & Memory**
+- Self-improvement cycle analyzes metrics and proposes prompt/parameter changes (always HITL-approved)
+- Daily journal entries capture operational patterns and decisions
+- Wisdom consolidation ("dreaming") promotes scored insights into persistent memory across sessions
+- OpenTelemetry pipeline for token usage and cost tracking
 
 ## Quick Start
 
@@ -72,7 +86,9 @@ You (TUI) ←→ Claude Code (Kernel)
                  ├── Subagents (nodes) — dispatched via Agent tool
                  ├── Hooks — safety, loop detection, lifecycle tracking
                  ├── PostgreSQL — task state, metrics, activity log
-                 ├── events/inbox.jsonl — event triggers (cron, webhooks, subagent completion)
+                 ├── Events/inbox — cron triggers, webhooks, subagent completion
+                 ├── Proactive layer — heartbeat, briefings, suggestions, idle work
+                 ├── Memory — journal entries + WISDOM.md (scored consolidation)
                  └── Constitution (9 Axioms) — immutable rules enforced by hooks
 ```
 
@@ -104,7 +120,8 @@ your-project/
 │   └── kernel/
 │       ├── schemas/              # NodeOutput, NodeSpec, SplitSpec
 │       ├── nodes/                # System + self-improvement node specs
-│       └── references/           # Constitution, priorities, examples
+│       ├── references/           # Constitution, priorities, examples
+│       └── journal/              # Daily entries + WISDOM.md (operational memory)
 └── infrastructure/ora-kernel/
     ├── docker-compose.yml        # PostgreSQL + OTel collector
     ├── db/                       # SQL migrations
@@ -140,6 +157,8 @@ echo '{"id":"msg_001","content":"Write unit tests for the auth module"}' >> .cla
 The Kernel reads these when running `/kernel-listen` in the background.
 
 ## Proactive Features
+
+These features make the Kernel feel like a business partner — it monitors the project, surfaces issues before you ask, suggests next steps, works during downtime, and remembers what it learned.
 
 ### Heartbeat (Anomaly Detection)
 
