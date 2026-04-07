@@ -20,6 +20,8 @@ These 9 axioms are immutable. Full definitions: `.claude/kernel/references/const
 ## Project Configuration
 
 - **Mission and constraints**: Read `PROJECT_DNA.md`
+- **Operational wisdom**: Read `.claude/kernel/journal/WISDOM.md` for accumulated insights
+- **Recent context**: Read last 2 days of `.claude/kernel/journal/YYYY-MM-DD.md` entries
 - **Node capabilities**: Read `.claude/kernel/nodes/` directory for available node specs
 - **Output format**: All subagents must return JSON per `.claude/kernel/schemas/node_output.md`
 - **Node registry**: `.claude/agents.yaml` lists all nodes, commands, and skills
@@ -105,6 +107,15 @@ These rules are enforced programmatically by hooks. Your behavior should align w
 - All results go to .claude/events/pending_briefing.md (user is not present)
 - Present results as "While you were away..." when the user next interacts
 - If nothing is eligible to run, do nothing — silence is correct
+
+### Operational Memory — .claude/kernel/journal/
+- The journal directory contains daily operational entries (YYYY-MM-DD.md) and WISDOM.md
+- **At session start**: read WISDOM.md and the last 2 days of journal entries for context
+- **At session end or after self-improvement**: dispatch the journal_writer to record what happened
+- **Periodically (weekly cron or after self-improvement)**: dispatch the consolidation_analyst to promote journal insights into WISDOM.md
+- WISDOM.md is always loaded — it contains scored, verified operational insights
+- Journal entries are immutable records — never modify past entries
+- Consolidation can flag conflicting insights for HITL review but never auto-resolves them
 
 ---
 

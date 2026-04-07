@@ -181,6 +181,23 @@ crontab -e
 
 Only small (budget_size S), research/analysis tasks are eligible. Gated by `PROJECT_DNA.md` autonomy_level — the Kernel never exceeds the boundaries you set. Results appear as "While you were away..." when you return.
 
+### Learning Journal & Wisdom Consolidation
+
+The Kernel maintains operational memory across sessions:
+
+- **Journal entries** (`.claude/kernel/journal/YYYY-MM-DD.md`) record what happened each session — completions, failures, decisions, patterns
+- **WISDOM.md** accumulates scored insights promoted from journal entries via a "dreaming" consolidation cycle
+- Consolidation scores candidates by **frequency** (how often observed), **impact** (did it affect outcomes), and **recency** (still relevant)
+- Stale insights that aren't reinforced are eventually archived, keeping WISDOM.md current
+
+```bash
+crontab -e
+# Weekly consolidation on Sunday at 3am
+0 3 * * 0 /path/to/project/.claude/cron/consolidate.sh /path/to/project
+```
+
+Also triggers automatically after each self-improvement cycle. WISDOM.md is loaded at the start of every session, giving the Kernel cumulative project knowledge.
+
 ## Requirements
 
 - Claude Code 2.1.89+

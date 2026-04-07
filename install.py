@@ -125,12 +125,26 @@ def copy_kernel_owned(target: Path, dry_run: bool):
     print("\n📦 Phase 2: Copying kernel-owned files")
 
     # Kernel directory (schemas, nodes, references)
+    # Preserve journal entries and WISDOM.md — these accumulate over time
     kernel_src = KERNEL_FILES / ".claude" / "kernel"
     kernel_dst = target / ".claude" / "kernel"
+    preserved_files = {}
     if not dry_run:
+        # Save journal files before overwrite
+        journal_dst = kernel_dst / "journal"
+        if journal_dst.exists():
+            for f in journal_dst.iterdir():
+                if f.is_file() and f.name != ".gitkeep":
+                    preserved_files[f.name] = f.read_text()
         if kernel_dst.exists():
             shutil.rmtree(kernel_dst)
         shutil.copytree(kernel_src, kernel_dst)
+        # Restore preserved journal files
+        if preserved_files:
+            journal_dst.mkdir(parents=True, exist_ok=True)
+            for name, content in preserved_files.items():
+                (journal_dst / name).write_text(content)
+            log(f"  Preserved {len(preserved_files)} journal/wisdom file(s)", "OK")
     log(f".claude/kernel/ ({sum(1 for _ in kernel_src.rglob('*') if _.is_file())} files)", "COPY")
 
     # Hooks

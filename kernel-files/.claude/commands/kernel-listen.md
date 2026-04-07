@@ -48,6 +48,45 @@ Trigger the self-improvement cycle:
 3. Dispatch the refinement_analyst node to analyze patterns
 4. Present all proposals to the user for HITL approval
 5. Apply approved changes
+6. After applying changes, trigger `/write-journal` then `/consolidate` to capture learnings
+
+### `/write-journal`
+Write a journal entry for the current session. Dispatch the journal_writer node with:
+- The session activity log from `/tmp/claude-kernel/{session_id}/activity_log.jsonl`
+- Completed and failed task summaries from postgres
+- The current session_id
+
+The journal_writer returns a markdown entry. Write it to `.claude/kernel/journal/YYYY-MM-DD.md` (using today's date). If a file for today already exists, append a session separator (`---`) and the new entry.
+
+### `/consolidate`
+Run the "dreaming" cycle — consolidate journal entries into WISDOM.md.
+
+1. Read all journal entries from the last 7 days:
+```bash
+find .claude/kernel/journal -name "????-??-??.md" -mtime -7
+```
+
+2. Read current `.claude/kernel/journal/WISDOM.md`
+
+3. Dispatch the consolidation_analyst node with:
+   - All recent journal entry contents
+   - Current WISDOM.md content
+   - retention_days: 7 (configurable)
+   - stale_threshold_days: 14
+
+4. Dispatch the consolidation_analyst_verifier with:
+   - The consolidation output
+   - Same journal data for cross-checking
+   - Previous WISDOM.md
+
+5. If verified COMPLETE:
+   - Write the updated WISDOM.md to `.claude/kernel/journal/WISDOM.md`
+   - Log the consolidation event to postgres activity_log
+   - Write a summary to pending_briefing.md if changes were made
+
+6. If verified FAILED or conflicts detected:
+   - Write conflict details to pending_briefing.md for HITL review
+   - Do NOT update WISDOM.md until conflicts are resolved
 
 ### `/briefing`
 Generate a daily project summary and suggested priorities. Query postgres for recent activity then write a structured briefing to `.claude/events/pending_briefing.md`.

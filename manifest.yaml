@@ -94,6 +94,9 @@ files:
     strategy: copy_always
     is_directory: true
     description: "Schemas, nodes, references — always overwritten on update"
+    preserve:
+      - .claude/kernel/journal/WISDOM.md    # Never overwrite accumulated wisdom
+      - .claude/kernel/journal/????-??-??.md # Never overwrite journal entries
 
   # === Infrastructure ===
   - source: infrastructure/
