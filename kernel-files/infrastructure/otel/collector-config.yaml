@@ -1,0 +1,47 @@
+# OpenTelemetry Collector configuration for ORA Kernel
+# Receives metrics and logs from Claude Code, exports to PostgreSQL via file + import
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 100
+
+exporters:
+  # File exporter for metrics — can be imported into postgres via script
+  file/metrics:
+    path: /var/otel/metrics.jsonl
+    rotation:
+      max_megabytes: 50
+      max_days: 7
+      max_backups: 3
+
+  # File exporter for logs (API events)
+  file/logs:
+    path: /var/otel/logs.jsonl
+    rotation:
+      max_megabytes: 100
+      max_days: 7
+      max_backups: 3
+
+  # Console for debugging (disable in production)
+  logging:
+    loglevel: warn
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file/metrics, logging]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file/logs, logging]

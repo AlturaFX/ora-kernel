@@ -1,0 +1,95 @@
+# ORA Kernel Manifest — Drives the install.py integration script
+# Each entry defines source → target mapping and conflict resolution strategy
+#
+# Strategies:
+#   copy_always       — Kernel-owned, overwritten every install/update
+#   create_if_absent  — Created only if missing, never overwritten
+#   skip_if_exists    — Template file, never overwritten
+#   section_merge     — Merge using ORA-KERNEL markers (idempotent)
+#   json_deep_merge   — JSON-aware merge of hooks/permissions arrays
+#   rename_if_exists  — Install under alternate name if collision detected
+
+version: "1.0.0"
+
+files:
+  # === Core documents ===
+  - source: CLAUDE.md
+    target: CLAUDE.md
+    strategy: section_merge
+    description: "Kernel operating instructions (merged via HTML comment markers)"
+
+  - source: PROJECT_DNA.md
+    target: PROJECT_DNA.md
+    strategy: skip_if_exists
+    description: "Mission config template — never overwrite user's filled-in DNA"
+
+  # === Claude Code settings ===
+  - source: .claude/settings.json
+    target: .claude/settings.json
+    strategy: json_deep_merge
+    description: "Hooks and permissions (merged into existing settings)"
+
+  - source: .claude/agents.yaml
+    target: .claude/agents.yaml
+    strategy: section_merge
+    description: "Node/command registry (merged via YAML section markers)"
+
+  # === Commands ===
+  - source: .claude/commands/chat-listen.md
+    target: .claude/commands/chat-listen.md
+    strategy: rename_if_exists
+    rename_to: .claude/commands/ora-kernel-listen.md
+    description: "Kernel event loop — renamed if project already has chat-listen"
+
+  - source: .claude/commands/self-improve.md
+    target: .claude/commands/self-improve.md
+    strategy: create_if_absent
+    description: "Self-improvement trigger command"
+
+  # === Hooks (kernel-owned) ===
+  - source: .claude/hooks/safety_check.sh
+    target: .claude/hooks/safety_check.sh
+    strategy: copy_always
+
+  - source: .claude/hooks/protect_core.py
+    target: .claude/hooks/protect_core.py
+    strategy: copy_always
+
+  - source: .claude/hooks/loop_detector.py
+    target: .claude/hooks/loop_detector.py
+    strategy: copy_always
+
+  - source: .claude/hooks/subagent_lifecycle.py
+    target: .claude/hooks/subagent_lifecycle.py
+    strategy: copy_always
+
+  - source: .claude/hooks/anti_poll.py
+    target: .claude/hooks/anti_poll.py
+    strategy: copy_always
+
+  - source: .claude/hooks/session_init.sh
+    target: .claude/hooks/session_init.sh
+    strategy: copy_always
+
+  # === Chat infrastructure ===
+  - source: .claude/chat/inbox.jsonl
+    target: .claude/chat/inbox.jsonl
+    strategy: create_if_absent
+
+  - source: .claude/chat/outbox.jsonl
+    target: .claude/chat/outbox.jsonl
+    strategy: create_if_absent
+
+  # === Kernel system (entirely kernel-owned) ===
+  - source: .claude/kernel/
+    target: .claude/kernel/
+    strategy: copy_always
+    is_directory: true
+    description: "Schemas, nodes, references — always overwritten on update"
+
+  # === Infrastructure ===
+  - source: infrastructure/
+    target: infrastructure/ora-kernel/
+    strategy: copy_always
+    is_directory: true
+    description: "Docker-compose, OTel config, SQL migrations — namespaced under ora-kernel/"

@@ -1,0 +1,109 @@
+# ORA Kernel — Agent/Node/Command Registry
+# Single source of truth for all system components.
+# Updated by NodeCreator when new nodes are added.
+
+# === ORA-KERNEL:START commands ===
+# ============================================================================
+# Commands (slash commands — shared context, manual invocation)
+# === ORA-KERNEL:END commands ===
+
+
+commands:
+  chat-listen:
+    file: .claude/commands/chat-listen.md
+    purpose: Kernel event loop — watches inbox for tasks, triggers, and messages
+    invocation: /chat-listen
+    context: shared
+
+  self-improve:
+    file: .claude/commands/self-improve.md
+    purpose: Trigger self-improvement cycle — analyze metrics and propose system improvements
+    invocation: /self-improve
+    context: shared
+
+# === ORA-KERNEL:START system_nodes ===
+# ============================================================================
+# System Nodes (bootstrap — required for self-expansion)
+# === ORA-KERNEL:END system_nodes ===
+
+
+system_nodes:
+  node_designer:
+    spec_path: .claude/kernel/nodes/system/node_designer.md
+    type: domain
+    quad: NodeDesigner
+    purpose: Analyzes capability gaps and designs NodeSpec for new nodes
+    capability_tags: [system, architecture, node_design]
+
+  node_designer_verifier:
+    spec_path: .claude/kernel/nodes/system/node_designer_verifier.md
+    type: verifier
+    quad: NodeDesigner
+    purpose: Validates NodeSpec quality before node creation
+
+  node_creator:
+    spec_path: .claude/kernel/nodes/system/node_creator.md
+    type: task
+    quad: NodeCreator
+    purpose: Takes NodeSpec and produces markdown node specification files
+    capability_tags: [system, code_generation, node_creation]
+
+  node_creator_verifier:
+    spec_path: .claude/kernel/nodes/system/node_creator_verifier.md
+    type: verifier
+    quad: NodeCreator
+    purpose: Validates generated node spec files for completeness and quality
+
+  business_analyst:
+    spec_path: .claude/kernel/nodes/system/business_analyst.md
+    type: task
+    quad: BusinessAnalyst
+    purpose: HITL mediator — presents context and options for human decisions
+    capability_tags: [system, hitl, communication]
+
+  business_analyst_verifier:
+    spec_path: .claude/kernel/nodes/system/business_analyst_verifier.md
+    type: verifier
+    quad: BusinessAnalyst
+    purpose: Validates HITL presentations for completeness and accuracy
+
+# === ORA-KERNEL:START self_improvement_nodes ===
+# ============================================================================
+# Self-Improvement Nodes
+# === ORA-KERNEL:END self_improvement_nodes ===
+
+
+self_improvement_nodes:
+  tuning_analyst:
+    spec_path: .claude/kernel/nodes/self_improvement/tuning_analyst.md
+    type: task
+    quad: TuningAnalyst
+    purpose: Analyzes metrics and proposes parameter adjustments
+    capability_tags: [self_improvement, metrics, tuning]
+
+  tuning_analyst_verifier:
+    spec_path: .claude/kernel/nodes/self_improvement/tuning_analyst_verifier.md
+    type: verifier
+    quad: TuningAnalyst
+    purpose: Validates tuning proposals against supporting metrics
+
+  refinement_analyst:
+    spec_path: .claude/kernel/nodes/self_improvement/refinement_analyst.md
+    type: task
+    quad: RefinementAnalyst
+    purpose: Analyzes failure patterns and proposes node prompt improvements
+    capability_tags: [self_improvement, prompt_engineering, refinement]
+
+  refinement_analyst_verifier:
+    spec_path: .claude/kernel/nodes/self_improvement/refinement_analyst_verifier.md
+    type: verifier
+    quad: RefinementAnalyst
+    purpose: Validates prompt change proposals for safety and effectiveness
+
+# === ORA-KERNEL:START user_nodes ===
+# ============================================================================
+# User Nodes (populated by self-expansion pipeline)
+# === ORA-KERNEL:END user_nodes ===
+
+
+user_nodes: {}

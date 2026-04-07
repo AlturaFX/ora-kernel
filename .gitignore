@@ -1,0 +1,15 @@
+# Runtime files — never distribute
+*.local.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
+
+# Test artifacts
+/tmp/

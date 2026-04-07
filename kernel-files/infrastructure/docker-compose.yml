@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: ora-kernel-postgres
+    environment:
+      POSTGRES_DB: ora_kernel
+      POSTGRES_USER: ora
+      POSTGRES_PASSWORD: ora_kernel_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - ora_pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ora -d ora_kernel"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: ora-otel-collector
+    command: ["--config=/etc/otel/collector-config.yaml"]
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    volumes:
+      - ./otel/collector-config.yaml:/etc/otel/collector-config.yaml:ro
+      - otel_data:/var/otel
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  ora_pgdata:
+  otel_data:
