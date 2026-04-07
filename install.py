@@ -158,7 +158,7 @@ def copy_kernel_owned(target: Path, dry_run: bool):
     events_dir = target / ".claude" / "events"
     if not dry_run:
         events_dir.mkdir(parents=True, exist_ok=True)
-    for f in ["inbox.jsonl", "outbox.jsonl"]:
+    for f in ["inbox.jsonl", "pending_briefing.md"]:
         fpath = events_dir / f
         if not fpath.exists():
             if not dry_run:

@@ -77,10 +77,20 @@ Interpret as a task or question:
 3. If ambiguous → ask for clarification
 
 ### Responding
-Write responses to the outbox:
-```bash
-echo '{"id":"resp_'$(date +%s)'","timestamp":"'$(date -Iseconds)'","role":"assistant","content":"YOUR RESPONSE"}' >> .claude/events/outbox.jsonl
+For results the user needs to see:
+1. **If the user is active in the TUI** — output directly (your normal response)
+2. **If the result is from a background task** — append to `.claude/events/pending_briefing.md` so it can be presented when the user next interacts
+
+The pending briefing file format:
+```markdown
+## [timestamp] Task: "title"
+Status: COMPLETE | FAILED
+Summary: brief result
+
+---
 ```
+
+When the user sends a new message, check if `.claude/events/pending_briefing.md` has content. If so, present it first ("While you were away..."), then clear the file.
 
 ## Step 4: Listen Again
 

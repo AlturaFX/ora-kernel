@@ -76,9 +76,10 @@ files:
     target: .claude/events/inbox.jsonl
     strategy: create_if_absent
 
-  - source: .claude/events/outbox.jsonl
-    target: .claude/events/outbox.jsonl
+  - source: .claude/events/pending_briefing.md
+    target: .claude/events/pending_briefing.md
     strategy: create_if_absent
+    description: "Async results buffer — presented when user next interacts"
 
   # === Kernel system (entirely kernel-owned) ===
   - source: .claude/kernel/

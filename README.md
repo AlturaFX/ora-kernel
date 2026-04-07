@@ -99,7 +99,7 @@ your-project/
 │   ├── agents.yaml               # Node/command registry (merged)
 │   ├── hooks/                    # 6 enforcement scripts
 │   ├── commands/                 # kernel-listen, self-improve
-│   ├── events/                   # inbox/outbox event queues
+│   ├── events/                   # inbox queue + pending briefing
 │   └── kernel/
 │       ├── schemas/              # NodeOutput, NodeSpec, SplitSpec
 │       ├── nodes/                # System + self-improvement node specs
