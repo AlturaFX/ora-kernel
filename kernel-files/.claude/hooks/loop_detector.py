@@ -116,8 +116,26 @@ def main():
     if should_skip(command):
         sys.exit(0)
 
-    # Heuristic for failure: stderr is non-empty or command was interrupted
-    failed = bool(stderr.strip()) or interrupted
+    # Heuristic for failure: check stderr for real errors, not noise
+    # Filter out known non-error stderr messages:
+    # - 'Shell cwd was reset' is a Claude Code notice, not an error
+    # - 'warning:' lines from git are informational
+    filtered_stderr = stderr.strip()
+    noise_patterns = [
+        'Shell cwd was reset',
+        'hint:',
+        'warning: LF will be replaced',
+    ]
+    for noise in noise_patterns:
+        filtered_stderr = '
+'.join(
+            line for line in filtered_stderr.split('
+')
+            if noise not in line
+        )
+    filtered_stderr = filtered_stderr.strip()
+
+    failed = bool(filtered_stderr) or interrupted
 
     # Log this command
     log_dir = get_log_dir(hook_input)
