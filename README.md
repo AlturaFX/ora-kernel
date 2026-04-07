@@ -165,6 +165,10 @@ crontab -e
 
 Covers: yesterday's completions and failures, pending work ranked by priority, system health, self-improvement cycle status. Written to `pending_briefing.md` and presented when you next open the TUI.
 
+### Context-Aware Suggestions
+
+After a task completes, the Kernel may offer a follow-up suggestion — an unblocked downstream task, a definition-of-done gap, or a logical next step based on patterns. It asks "Was this helpful?" and records your feedback. Over time, it learns which types of suggestions you value and suppresses the ones you don't. No cron needed — this triggers automatically on task completion.
+
 ## Requirements
 
 - Claude Code 2.1.89+

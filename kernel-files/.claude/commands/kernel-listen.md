@@ -201,6 +201,50 @@ Report current state:
 2. Count completed/failed/pending tasks from this session
 3. Report recent activity log entries
 
+### Post-completion suggestions
+After any task reaches COMPLETE, consider offering a context-aware suggestion. This is NOT a message route — it's behavior you apply after processing any event that completes a task.
+
+**Step 1: Check if suggestions are welcome**
+```sql
+SELECT suggestion_type, helpful_pct
+FROM v_suggestion_effectiveness
+WHERE total >= 3;
+```
+Skip any suggestion type with helpful_pct < 30%.
+
+**Step 2: Check for suggestion opportunities (in priority order, pick at most ONE)**
+
+*Unblocked downstream tasks:*
+```sql
+SELECT dt.task_title, dt.status
+FROM orch_task_dependencies d
+JOIN orch_tasks dt ON dt.id = d.downstream_task_id
+WHERE d.upstream_task_id = '{completed_task_id}'
+  AND dt.status IN ('NEW', 'INCOMPLETE');
+```
+
+*Definition-of-done gaps:*
+Read PROJECT_DNA.md definition_of_done. Check whether the completed task's verification covered all criteria. If any criterion wasn't checked, suggest verifying it.
+
+*Pattern-based follow-ups:*
+If the completed task was "write code" → suggest "run tests". If it was "research" → suggest "document findings". Use the activity log to see if this pattern has been useful before.
+
+**Step 3: Present the suggestion (if one was found)**
+Format: one sentence describing the suggestion, then:
+> "Was this suggestion helpful? (yes / no / skip)"
+
+**Step 4: Record feedback**
+```sql
+INSERT INTO orch_suggestion_feedback
+  (session_id, task_id, suggestion_type, suggestion_text, context, feedback, feedback_at)
+VALUES
+  ('{session_id}', '{task_id}', '{type}', '{text}', '{context}', '{response}', NOW());
+```
+
+If the user says "yes" → record 'helpful', proceed with the suggestion.
+If "no" → record 'not_helpful', acknowledge and move on.
+If "skip" or they ignore it → record 'skipped', move on immediately.
+
 ### Plain text messages
 Interpret as a task or question:
 1. If it describes work to be done → treat as a new task, classify and dispatch

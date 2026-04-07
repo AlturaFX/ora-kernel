@@ -80,6 +80,22 @@ These rules are enforced programmatically by hooks. Your behavior should align w
 - Suggest priorities based on: what unblocks other work, what has been waiting longest, what the user left mid-progress
 - Include any anomalies the heartbeat would catch — the briefing subsumes the heartbeat check
 
+### Context-Aware Suggestions — post-completion behavior
+- After a task reaches COMPLETE, consider whether a follow-up suggestion would be helpful
+- Before suggesting, check orch_suggestion_feedback via v_suggestion_effectiveness to see which types the user values
+- If a suggestion type has <30% helpful_pct from past feedback, do NOT offer that type unless circumstances are exceptional
+- Suggestion types and when to use them:
+  - **next_task**: Downstream tasks in orch_task_dependencies are now unblocked
+  - **unblocked**: A dependency was resolved, enabling previously blocked work
+  - **dod_gap**: A definition_of_done criterion from PROJECT_DNA.md has not been verified yet
+  - **doc_stale**: Files related to the completed task have documentation that may need updating
+  - **pattern**: Recent work suggests a logical next step (e.g., tests written but not run)
+- Present at most ONE suggestion per completed task — never a list
+- After presenting a suggestion, ask: "Was this suggestion helpful? (yes / no / skip)"
+- Record the feedback in orch_suggestion_feedback with the suggestion type and context
+- If the user says "skip" or ignores it, record as "skipped" and move on immediately
+- NEVER repeat a suggestion the user already declined in this session
+
 ---
 
 ## Dispatch Protocol
