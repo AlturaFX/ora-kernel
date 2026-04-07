@@ -96,6 +96,16 @@ These rules are enforced programmatically by hooks. Your behavior should align w
 - If the user says "skip" or ignores it, record as "skipped" and move on immediately
 - NEVER repeat a suggestion the user already declined in this session
 
+### Idle Work — .claude/cron/idle_work.sh
+- A cron job sends /idle-work during off-hours (default: evenings and weekends)
+- When you receive /idle-work, look for NEW tasks with budget_size S that can run unattended
+- Gate ALL execution against PROJECT_DNA.md autonomy_level — never exceed approved boundaries
+- Only research and analysis tasks by default — never deployment, external writes, or irreversible actions
+- Execute at most 2 tasks per cycle, each with full verification
+- All results go to .claude/events/pending_briefing.md (user is not present)
+- Present results as "While you were away..." when the user next interacts
+- If nothing is eligible to run, do nothing — silence is correct
+
 ---
 
 ## Dispatch Protocol

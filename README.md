@@ -169,6 +169,18 @@ Covers: yesterday's completions and failures, pending work ranked by priority, s
 
 After a task completes, the Kernel may offer a follow-up suggestion — an unblocked downstream task, a definition-of-done gap, or a logical next step based on patterns. It asks "Was this helpful?" and records your feedback. Over time, it learns which types of suggestions you value and suppresses the ones you don't. No cron needed — this triggers automatically on task completion.
 
+### Anticipatory Research (Idle Work)
+
+During off-hours, the Kernel picks up low-risk queued tasks and works on them autonomously:
+
+```bash
+crontab -e
+# Every 4 hours overnight
+0 20,0,4 * * * /path/to/project/.claude/cron/idle_work.sh /path/to/project
+```
+
+Only small (budget_size S), research/analysis tasks are eligible. Gated by `PROJECT_DNA.md` autonomy_level — the Kernel never exceeds the boundaries you set. Results appear as "While you were away..." when you return.
+
 ## Requirements
 
 - Claude Code 2.1.89+

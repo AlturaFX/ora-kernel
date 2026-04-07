@@ -245,6 +245,62 @@ If the user says "yes" → record 'helpful', proceed with the suggestion.
 If "no" → record 'not_helpful', acknowledge and move on.
 If "skip" or they ignore it → record 'skipped', move on immediately.
 
+### `/idle-work`
+Autonomous low-risk work during downtime. The user is NOT at the TUI — all output goes to `pending_briefing.md`.
+
+**Step 1: Check autonomy gate**
+Read PROJECT_DNA.md `autonomy_level` section. If it restricts autonomous execution, respect those boundaries. By default, only research and analysis tasks are permitted unattended — never deployment, external API calls, or file modifications outside the project.
+
+**Step 2: Find eligible tasks**
+```sql
+SELECT t.id, t.task_title, t.budget_size, t.input_data,
+       n.name AS node_name, n.node_type, n.capability_tags
+FROM orch_tasks t
+LEFT JOIN orch_nodes n ON t.node_id = n.id
+WHERE t.status = 'NEW'
+  AND t.budget_size = 'S'
+  AND t.is_awaiting_human = FALSE
+ORDER BY t.created_at
+LIMIT 3;
+```
+
+If no eligible tasks exist, do nothing and return.
+
+**Step 3: Filter by safety**
+For each candidate task, check:
+- Is the node type safe for unattended execution? (research, analysis = yes; coding, deployment = check autonomy_level)
+- Does the task require external access? (API calls, web requests = check autonomy_level)
+- Is the budget_size S? (only small tasks run unattended)
+
+**Step 4: Execute (one task at a time)**
+For each eligible task (max 2 per idle-work cycle):
+1. Dispatch the matched node as a subagent
+2. Wait for completion (do NOT use run_in_background — this is already a background context)
+3. If UNVERIFIED → dispatch the verifier
+4. If verified COMPLETE → update postgres, log to activity_log
+5. If FAILED → log and move on (do NOT retry — Axiom 5)
+
+**Step 5: Write results to briefing**
+Append to `.claude/events/pending_briefing.md`:
+```markdown
+## [timestamp] Idle Work: "{task_title}"
+Status: COMPLETE | FAILED
+Summary: {brief result}
+Node: {node_name}
+Autonomy: This task was executed during downtime per PROJECT_DNA.md autonomy_level.
+
+---
+```
+
+**Safety rules for idle work:**
+- NEVER exceed 2 tasks per idle-work cycle
+- NEVER execute tasks with budget_size > S
+- NEVER execute tasks flagged is_awaiting_human
+- NEVER modify protected files
+- NEVER take actions that are irreversible (deployment, external writes)
+- If ANY step fails or is ambiguous, stop and log — do not proceed to next task
+- All results go to pending_briefing.md, never direct output (user is away)
+
 ### Plain text messages
 Interpret as a task or question:
 1. If it describes work to be done → treat as a new task, classify and dispatch
