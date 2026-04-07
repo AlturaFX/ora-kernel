@@ -127,13 +127,9 @@ def main():
         'warning: LF will be replaced',
     ]
     for noise in noise_patterns:
-        filtered_stderr = '
-'.join(
-            line for line in filtered_stderr.split('
-')
-            if noise not in line
-        )
-    filtered_stderr = filtered_stderr.strip()
+        filtered_stderr = '\n'.join(
+            line for line in filtered_stderr.split('\n')
+            if noise not in line)
 
     failed = bool(filtered_stderr) or interrupted
 
