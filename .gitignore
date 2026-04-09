@@ -1,4 +1,6 @@
-# Runtime files — never distribute
+# API keys and secrets — NEVER commit
+.env
+.env.*
 *.local.json
 
 # Python
